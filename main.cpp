@@ -1,9 +1,6 @@
 /* Benjamin Charles & Noah Krause 
-
    Final Project 
-
     4/19/17
-
 */
 #include <iostream>
 #include <string>
@@ -15,6 +12,7 @@ using namespace std;
 vector<string> r1, r2, r3, r4, r5, r6, r7, r8;
 int r1Loc, r2Loc, r3Loc, r4Loc, r5Loc, r6Loc, r7Loc, r8Loc;
 int game = 1, endGame = 0;
+bool play = true;
 
 void checkGame();
 void twoPlayerChoices(string choice1, string choice2);
@@ -70,10 +68,9 @@ void newGame() {
         << " enter the column of said space. Ex: C4.";
         cout << endl << endl;
 
-        while(game != 0) {
-            checkGame();  
+        while(game != 0) 
             drawBoard(playerOne, playerTwo);
-        }
+
 
     } else {
 
@@ -92,11 +89,10 @@ void newGame() {
         cout << endl << "To choose a space on the board,"
         << " enter the column of said space. Ex: C4.";
         cout << endl << endl;
-        
-        while(game != 0) {
-            checkGame();
+    
+        while(game !=0)
             drawBoard(playerOne);
-        }
+    
     }
 }
 
@@ -117,11 +113,28 @@ void drawBoard(string playerOne, string playerTwo) {
     cout << playerOne << " please enter your choice: ";
     cin >> playerOneChoice;
     p1Choice(playerOneChoice);
+    checkGame();
+    if (game != 0) { 
 
-    cout << playerTwo << " please enter your choice: ";
-    cin >> playerTwoChoice;
-    p2Choice(playerTwoChoice);
-    cout << endl;
+        cout << "| C1 | C2 | C3 | C4 | C5 | C6 | C7 | C8 |" << endl;
+        cout << "-----------------------------------------" << endl;
+        for(int i = 0; i < 6; i++) {
+            cout << "| " << r1[i] << " | " << r2[i] << " | " << r3[i] << " | ";
+            cout << r4[i] << " | " << r5[i] << " | " << r6[i] << " | " << r7[i];
+            cout << " | " << r8[i] << " |" << endl;
+            cout << "-----------------------------------------" << endl;
+    }
+        
+        cout << playerTwo << " please enter your choice: ";
+        cin >> playerTwoChoice;
+        p2Choice(playerTwoChoice);
+        checkGame();
+        if (game == 0) 
+            std::cout << "GAME OVER! " << playerTwo << " WINS!!" << std::endl;
+        else
+            cout << endl;
+    } else 
+        std::cout << "GAME OVER! " << playerOne << " WINS!!" << std::endl;
 
 }
 
@@ -143,11 +156,19 @@ void drawBoard(string playerOne) {
     cout << playerOne << " please enter your choice: ";
     cin >> playerOneChoice;
     p1Choice(playerOneChoice);
+    checkGame();
+    if (game != 0) {
+        randVal = rand() % 8 + 1;
+        compChoice += to_string(randVal);
+        p2CompChoice(compChoice);
+        checkGame();
+        if (game == 0)
+            std::cout << "GAME OVER! COMPUTER WINS!!" << std::endl;
+        else  
+            cout << endl;
+   } else
+       std::cout << "GAME OVER! " << playerOne << " WINS!!" << std::endl;
 
-    randVal = rand() % 8 + 1;
-    compChoice += to_string(randVal);
-    p2CompChoice(compChoice);
-    cout << endl;
 }
 
 void initVector(vector<string> &v1) {
@@ -484,11 +505,104 @@ void p2CompChoice(string choice2) {
 
 void checkGame() {
 
-   ++endGame;
+    vector <vector<string>> grid;
+    int forward = 1;
+    int back = 1;
+    int vNum = 1;
+    int hNum = 1;
 
-    if(endGame == 10) {
 
-        game = 0;
+    grid.push_back(r1);
+    grid.push_back(r2);
+    grid.push_back(r3);
+    grid.push_back(r4);
+    grid.push_back(r5);
+    grid.push_back(r6);
+    grid.push_back(r7);
+    grid.push_back(r8);
 
+    // Check if verticle 4-in-a-row
+
+    for (int i = 0; i < grid.size(); i++) {
+        if (vNum < 4) {
+            for (int j = 5; j > 0; j--) {
+                if (vNum < 4) {
+                    if (grid[i][j] == grid[i][j-1] && grid[i][j] != "  ")
+                        vNum++;
+                    else
+                        vNum = 1;
+                }
+            }
+        }
     }
-} 
+
+    // Check if horizontal 4-in-a-row
+
+    for (int j = 5; j > 0; j--) {
+        if (hNum < 4) {
+            for (int i = 0; i < 7; i++) {
+                if (hNum < 4) {
+                    if (grid[i][j] == grid[i+1][j] && grid[i][j] != "  ")
+                        hNum++;
+                    else 
+                        hNum = 1;
+                }
+            }
+        }
+    }
+ 
+    // Check if diagonal 4-in-a-row
+
+    for (int i = 0; i < 8; i++) {
+        if (grid[i][2] != "  ") {
+            if (i <= 3) {
+                int j = 0;
+                int k = 2 + i;
+                while (j < 7 && k > 0 && forward < 4) {
+                    if  (grid[j][k] == grid[j+1][k-1] && grid[j][k] != "  ")
+                        forward++;
+                    else
+                        forward = 1;
+                    j++;
+                    k--;
+                }
+                j = i + 3;
+                k = 5;
+                while (j > 0 && k > 0 && back < 4) {
+                    if (grid[j][k] == grid[j-1][k-1] && grid[j][k] != "  ")
+                        back++;
+                    else 
+                        back = 1;
+                    j--;
+                    k--;
+                }
+            } else {
+                std::cout << ">=4" << std::endl;
+                int j = i - 3;
+                int k = 5;
+                while (j < 7 && k > 0) {
+                    if  (grid[j][k] == grid[j+1][k-1] && grid[j][k] != "  ")
+                        forward++;
+                    else
+                        forward = 1;
+                    j++;
+                    k--;
+                }
+                j = 7;
+                k = (7 - i) + 2 ;
+                while (j > 0 && k > 0 && back < 4) {
+                    if (grid[j][k] == grid[j-1][k-1] && grid[j][k] != "  ")
+                        back++;
+                    else 
+                        back = 1;
+                    j--;
+                    k--;
+                }
+            }
+        }
+    }
+
+   if (forward == 4 || back == 4 || vNum == 4 || hNum == 4) 
+        game = 0;
+}
+
